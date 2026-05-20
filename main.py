@@ -2,11 +2,11 @@
 # IMDB Movie Rating Predictor
 #
 # Phases:
-#   Phase 1 : Data Pipeline       — load, EDA, visualise
-#   Phase 2 : Architecture        — define features & pipeline structure
-#   Phase 3 : Model Training      — boosting-stage sweep, pick best baseline
-#   Phase 4 : Model Optimization  — GridSearchCV hyperparameter tuning
-#   Phase 5 : Final Evaluation    — regression + classification metrics & plots
+#   MILESTONE 1 : Data Pipeline       — load, EDA, visualise
+#   MILESTONE 2 : Architecture        — define features & pipeline structure
+#   MILESTONE 3 : Model Training      — boosting-stage sweep, pick best baseline
+#   MILESTONE 4 : Model Optimization  — GridSearchCV hyperparameter tuning
+#   MILESTONE 5 : Final Evaluation    — regression + classification metrics & plots
 # =============================================================================
 
 import os
@@ -48,10 +48,10 @@ print(f"  Plots   : {os.path.abspath(PLOTS_DIR)}/")
 
 
 # =============================================================================
-# PHASE 1 — DATA PIPELINE
+# MILESTONE 1 — DATA PIPELINE
 # =============================================================================
 print("===============================================")
-print("PHASE 1 : DATA PREPROCESSING")
+print("MILESTONE 1 : DATA PREPROCESSING")
 print("===============================================")
 
 
@@ -110,14 +110,13 @@ plt.savefig(os.path.join(PLOTS_DIR, "correlation_heatmap.png"), bbox_inches="tig
 plt.close()
 print(f"  [saved, open in -> {PLOTS_DIR}/correlation_heatmap.png]")
 print("\n")
-print("MILESTONE 1 done; dataset cleaned, loaded and explored.")
 
 
 # ====================================================
-# PHASE 2 — MODEL ARCHITECTURE
+# MILESTONE 2 — MODEL ARCHITECTURE
 # ====================================================
 print("===============================================")
-print("PHASE 2 : MODEL ARCHITECTURE ")
+print("MILESTONE 2 : MODEL ARCHITECTURE ")
 print("===============================================")
 
 
@@ -154,15 +153,14 @@ pipeline = Pipeline(steps=[
 print("\n  Full ML Pipeline:")
 print(f"    {pipeline}")
 print("\n")
-print("MILESTONE 2 done; model chosen : Gradient Boosting Regressor")
 
 
 # ==================================================== 
-# PHASE 3 — MODEL TRAINING
+# MILESTONE 3 — MODEL TRAINING
 # ====================================================
 print("\n")
 print("===============================================")
-print("PHASE 3 : MODEL TRAINING")
+print("MILESTONE 3 : MODEL TRAINING")
 print("===============================================")
 
 
@@ -189,7 +187,7 @@ print(f"  Dataset shape after cleaning and converting: {df.shape}")
 X     = df[numeric_features + categorical_features]
 y     = df[target_variable]
 
-y_all = y.copy()   # this is for Phase 5 calculation later on
+y_all = y.copy()   # this is for MILESTONE 5 calculation later on
 
 
 # 3.3  Train/Validation/Test split (70%/15%/15%)
@@ -245,8 +243,6 @@ for n_estimators in estimator_values:
     # Predict training and validation values
     train_pred  = model.predict(X_train_processed)
     val_pred = model.predict(X_val_processed)
-
- #!!!!!!!!!!!! CHECK HERE !!!!!!!!!!!!!!
 
     # Calculate training metrics
     train_rmse = mean_squared_error(y_train, train_pred) ** 0.5
@@ -320,9 +316,9 @@ axes[2].set_ylabel("R2")
 axes[2].grid(True)
 
 plt.tight_layout()
-plt.savefig(os.path.join(PLOTS_DIR, "3_training_progress.png"), bbox_inches="tight", dpi=120)
+plt.savefig(os.path.join(PLOTS_DIR, "training_progress.png"), bbox_inches="tight", dpi=120)
 plt.close()
-print(f"  [saved, open in -> {PLOTS_DIR}/3_training_progress.png]")
+print(f"  [saved, open in -> {PLOTS_DIR}/training_progress.png]")
 
 
 # 3.7  Baseline test evaluation usingv best number of boosting stage
@@ -344,22 +340,20 @@ plt.figure(figsize=(6, 6))
 plt.scatter(y_test, baseline_test_pred, alpha=0.5)
 plt.xlabel("Actual IMDB Rating")
 plt.ylabel("Predicted IMDB Rating")
-plt.title("Phase 3 — Actual vs Predicted")
+plt.title("MILESTONE 3 — Actual vs Predicted")
 plt.grid(True)
-plt.savefig(os.path.join(PLOTS_DIR, "3_actual_vs_predicted.png"), bbox_inches="tight", dpi=120)
+plt.savefig(os.path.join(PLOTS_DIR, "actual_vs_predicted.png"), bbox_inches="tight", dpi=120)
 plt.close()
-print(f"  [saved, please  -> {PLOTS_DIR}/3_actual_vs_predicted.png]")
-
+print(f"  [saved, please  -> {PLOTS_DIR}/actual_vs_predicted.png]")
 print("\n") 
-print("MILESTONE 3 complete; best baseline model found.")
 
 
 # =====================================================
-# PHASE 4 — MODEL OPTIMIZATION  
+# MILESTONE 4 — MODEL OPTIMIZATION  
 # =====================================================
 print("\n")
 print("===============================================")
-print("PHASE 4 : MODEL OPTIMIZATION  ")
+print("MILESTONE 4 : MODEL OPTIMIZATION  ")
 print("===============================================")
 
 
@@ -428,22 +422,21 @@ for k, v in best_params.items():
     print(f"  {k:<22}: {v}")
 
 print("\n")
-print("MILESTONE 4 complete; data trained based on optimized hyperparameters.")
+
+# =====================================================
+# MILESTONE 5 — FINAL EVALUATION
+# =====================================================
+print("\n")
+print("================================================")
+print("MILESTONE 5 : FINAL EVALUATION")
+print("================================================")
 
 
-# =============================================================================
-# PHASE 5 — FINAL EVALUATION
-# =============================================================================
-print("\n" + "=" * 60)
-print("PHASE 5 : FINAL EVALUATION")
-print("=" * 60)
-
-
-# ── 5.1  Final predictions ────────────────────────────────────────────────────
+# 5.1  Final predictions 
 y_pred_test = best_model.predict(X_test_processed)
 
 
-# ── 5.2  Regression metrics ───────────────────────────────────────────────────
+# 5.2  Regression metrics 
 rmse = np.sqrt(mean_squared_error(y_test, y_pred_test))
 mae  = mean_absolute_error(y_test, y_pred_test)
 r2   = r2_score(y_test, y_pred_test)
@@ -455,7 +448,7 @@ print(f"  MAE  : {mae:.4f}")
 print(f"  R2   : {r2:.4f}")
 
 
-# ── 5.3  Classification metrics (data-driven threshold) ──────────────────────
+# 5.3  Classification metrics 
 threshold  = y_pred_test.mean()
 y_test_bin = (y_test >= y_all.mean()).astype(int)
 y_pred_bin = (y_pred_test >= threshold).astype(int)
@@ -473,11 +466,11 @@ print(f"  Recall    : {recall:.4f}")
 print(f"  F1-Score  : {f1:.4f}")
 
 
-# ── 5.4  4-panel evaluation plot ─────────────────────────────────────────────
+# 5.4  COMBINE 4-panel evaluation plot 
 print("\n  Generating evaluation plots ...")
 
 fig, axes = plt.subplots(2, 2, figsize=(14, 11))
-fig.suptitle("Phase 5 — Final Model Evaluation", fontsize=14, fontweight="bold")
+fig.suptitle("MILESTONE 5 — Final Model Evaluation", fontsize=14, fontweight="bold")
 
 # (a) Actual vs Predicted
 sns.regplot(x=y_test, y=y_pred_test, ax=axes[0, 0], scatter_kws={"alpha": 0.4})
@@ -511,12 +504,12 @@ axes[1, 1].set_title("Residual Distribution")
 axes[1, 1].set_xlabel("Prediction Error")
 
 plt.tight_layout()
-plt.savefig(os.path.join(PLOTS_DIR, "phase5_evaluation.png"), bbox_inches="tight", dpi=120)
+plt.savefig(os.path.join(PLOTS_DIR, "evaluation.png"), bbox_inches="tight", dpi=120)
 plt.close()
-print(f"  [saved -> {PLOTS_DIR}/phase5_evaluation.png]")
+print(f"  [saved -> {PLOTS_DIR}/evaluation.png]")
 
 
-# ── 5.5  Sample predictions & error summary ──────────────────────────────────
+# 5.5  Sample predictions & error summary 
 sample_df = pd.DataFrame({
     "Actual"    : y_test.values[:10],
     "Predicted" : y_pred_test[:10].round(2),
@@ -527,16 +520,4 @@ print(sample_df.to_string(index=False))
 
 large_errors = np.sum(np.abs(errors) > 1.0)
 print(f"\n  Large errors (|error| > 1.0) : {large_errors} / {len(errors)} samples")
-print("\nPhase 5 complete — evaluation done.")
 
-
-# =============================================================================
-# PIPELINE COMPLETE
-# =============================================================================
-print("\n" + "=" * 60)
-print("  PIPELINE COMPLETE")
-print("=" * 60)
-print("\n  Plots saved:")
-for fname in sorted(os.listdir(PLOTS_DIR)):
-    print(f"    {PLOTS_DIR}/{fname}")
-print()
